@@ -8,7 +8,7 @@ import {
   type Item,
 } from '@/types/database'
 import { ItemCard } from '@/components/ui/ItemCard'
-import { Button, Select } from '@/components/ui'
+import { Button, Input, Select } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 const TYPE_FILTERS = [
@@ -17,54 +17,99 @@ const TYPE_FILTERS = [
   { value: 'found', label: 'Found' },
 ]
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'date_occurred', label: 'Date occurred' },
+]
+
+const PAGE_SIZE = 12
+
 export function BrowseItemsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const q = searchParams.get('q') ?? ''
   const type = searchParams.get('type') ?? ''
   const category = searchParams.get('category') ?? ''
   const location = searchParams.get('location') ?? ''
+  const from = searchParams.get('from') ?? ''
+  const to = searchParams.get('to') ?? ''
+  const sort = searchParams.get('sort') ?? 'newest'
 
-  const loadItems = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const loadItems = useCallback(
+    async (append: boolean) => {
+      if (append) {
+        setLoadingMore(true)
+      } else {
+        setLoading(true)
+      }
+      setError(null)
 
-    let query = supabase
-      .from('items')
-      .select('*, profiles(id, full_name, department, year)')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
+      let query = supabase
+        .from('items')
+        .select('*, profiles(id, full_name, department, year)')
+        .eq('status', 'active')
 
-    if (type === 'lost' || type === 'found') {
-      query = query.eq('type', type)
-    }
-    if (category) {
-      query = query.eq('category', category)
-    }
-    if (location) {
-      query = query.eq('location', location)
-    }
-    if (q) {
-      query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
-    }
+      if (type === 'lost' || type === 'found') {
+        query = query.eq('type', type)
+      }
+      if (category) {
+        query = query.eq('category', category)
+      }
+      if (location) {
+        query = query.eq('location', location)
+      }
+      if (from) {
+        const fromDate = new Date(from)
+        query = query.gte('date_occurred', fromDate.toISOString())
+      }
+      if (to) {
+        const toDate = new Date(to)
+        query = query.lte('date_occurred', toDate.toISOString())
+      }
+      if (q) {
+        query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+      }
 
-    const { data, error } = await query.limit(60)
+      if (sort === 'oldest') {
+        query = query.order('created_at', { ascending: true })
+      } else if (sort === 'date_occurred') {
+        query = query.order('date_occurred', { ascending: false })
+      } else {
+        query = query.order('created_at', { ascending: false })
+      }
 
-    if (error) {
-      setError(error.message)
-      setItems([])
-    } else {
-      setItems((data as Item[] | null) ?? [])
-    }
-    setLoading(false)
-  }, [q, type, category, location])
+      const fromIndex = append ? items.length : 0
+      query = query.range(fromIndex, fromIndex + PAGE_SIZE - 1)
+
+      const { data, error } = await query
+
+      if (error) {
+        setError(error.message)
+        if (!append) setItems([])
+      } else {
+        const rows = (data as Item[] | null) ?? []
+        setItems((prev) => (append ? [...prev, ...rows] : rows))
+        setHasMore(rows.length === PAGE_SIZE)
+      }
+      if (append) {
+        setLoadingMore(false)
+      } else {
+        setLoading(false)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q, type, category, location, sort, from, to, items.length],
+  )
 
   useEffect(() => {
-    void loadItems()
-  }, [loadItems])
+    void loadItems(false)
+  }, [q, type, category, location, sort, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams)
@@ -76,12 +121,12 @@ export function BrowseItemsPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const hasFilters = Boolean(q || type || category || location)
+  const hasFilters = Boolean(q || type || category || location || from || to || sort !== 'newest')
 
-  const activeCount = useMemo(
-    () => items.filter((i) => i.status !== 'removed').length,
-    [items],
-  )
+  const resultCountLabel = useMemo(() => {
+    if (loading) return 'Searching...'
+    return `${items.length} shown`
+  }, [loading, items.length])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -112,7 +157,7 @@ export function BrowseItemsPage() {
             </Button>
           </form>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Select
               aria-label="Filter by type"
               options={TYPE_FILTERS}
@@ -131,15 +176,33 @@ export function BrowseItemsPage() {
               value={location}
               onChange={(e) => updateParam('location', e.target.value)}
             />
+            <Input
+              label="From date"
+              aria-label="From date"
+              type="date"
+              value={from}
+              onChange={(e) => updateParam('from', e.target.value)}
+            />
+            <Input
+              label="To date"
+              aria-label="To date"
+              type="date"
+              value={to}
+              onChange={(e) => updateParam('to', e.target.value)}
+            />
+            <Select
+              aria-label="Sort by"
+              options={SORT_OPTIONS}
+              value={sort}
+              onChange={(e) => updateParam('sort', e.target.value)}
+            />
           </div>
         </div>
       </div>
 
       {hasFilters && (
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-slate-500">
-            {activeCount} result{activeCount === 1 ? '' : 's'}
-          </span>
+          <span className="text-sm text-slate-500">{resultCountLabel}</span>
           <button
             onClick={() => setSearchParams({}, { replace: true })}
             className={cn(
@@ -174,11 +237,24 @@ export function BrowseItemsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((item) => (
+                <ItemCard key={item.id} item={item} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-8 text-center">
+                <Button
+                  variant="secondary"
+                  loading={loadingMore}
+                  onClick={() => void loadItems(true)}
+                >
+                  Load more
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

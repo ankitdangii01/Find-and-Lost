@@ -16,18 +16,28 @@ export function LoginPage() {
     setError(null)
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      setError(error.message)
+    if (loginError) {
+      setError(loginError.message)
       setLoading(false)
       return
     }
 
-    navigate('/dashboard')
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .maybeSingle()
+      navigate(profile?.role === 'admin' ? '/admin' : '/dashboard')
+    } else {
+      navigate('/dashboard')
+    }
+    setLoading(false)
   }
 
   return (

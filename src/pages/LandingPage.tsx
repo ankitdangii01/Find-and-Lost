@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import {
+  ArrowDownLeft,
   ArrowRight,
-  BellRing,
+  ArrowUpRight,
   CheckCircle2,
   Search,
   ShieldCheck,
-  TrendingDown,
   Upload,
+  Users,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
@@ -23,8 +24,13 @@ const STEPS = [
   },
   {
     icon: ShieldCheck,
-    title: 'Verify & Return',
-    text: 'Claim ownership, verify private details with the other party, and safely reunite items.',
+    title: 'Claim & Verify',
+    text: 'Claim an item, answer ownership questions, and get it back — or return what you found.',
+  },
+  {
+    icon: ArrowRight,
+    title: 'Return',
+    text: 'Coordinate a safe handover and mark the item returned once it is back with its owner.',
   },
 ]
 
@@ -53,7 +59,7 @@ export function LandingPage() {
             <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-100">
               CampusFind is a centralized lost &amp; found platform for students
               and staff. Report what you lost or found, search across the campus,
-              and reunite items safely with verified claims.
+              and reunite items safely through verified claims.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -71,27 +77,25 @@ export function LandingPage() {
               </Link>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-                <TrendingDown className="h-6 w-6 text-accent-300" />
-                <p className="mt-2 text-2xl font-bold">90%+</p>
+              <Link to="/report-lost" className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 transition hover:bg-white/10">
+                <ArrowDownLeft className="h-6 w-6 text-rose-300" />
+                <p className="mt-2 text-base font-bold">Report a lost item</p>
                 <p className="text-sm text-primary-200">
-                  of reported items leave groups and clutter at the bottom of
-                  WhatsApp chats
+                  Post what you lost with details and a photo.
                 </p>
-              </div>
-              <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-                <ShieldCheck className="h-6 w-6 text-accent-300" />
-                <p className="mt-2 text-2xl font-bold">Verified</p>
+              </Link>
+              <Link to="/report-found" className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 transition hover:bg-white/10">
+                <ArrowUpRight className="h-6 w-6 text-sky-300" />
+                <p className="mt-2 text-base font-bold">Report a found item</p>
                 <p className="text-sm text-primary-200">
-                  private claim verification prevents fake owners from taking
-                  items
+                  Found something? Help it get back to its owner.
                 </p>
-              </div>
+              </Link>
               <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-                <BellRing className="h-6 w-6 text-accent-300" />
-                <p className="mt-2 text-2xl font-bold">Real-time</p>
+                <Users className="h-6 w-6 text-accent-300" />
+                <p className="mt-2 text-base font-bold">Verified claims</p>
                 <p className="text-sm text-primary-200">
-                  notifications when someone claims your item or finds a match
+                  Ownership is verified through private details before items are returned.
                 </p>
               </div>
             </div>
@@ -104,10 +108,10 @@ export function LandingPage() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
             <p className="mt-2 text-slate-500">
-              Three simple steps to get items back where they belong.
+              Four simple steps to get items back where they belong.
             </p>
           </div>
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-4">
             {STEPS.map((step, i) => (
               <div
                 key={step.title}
@@ -130,13 +134,23 @@ export function LandingPage() {
                 ? 'Ready to report an item?'
                 : 'Join your campus community today.'}
             </p>
-            <Link
-              to={session ? '/report-lost' : '/signup'}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-primary-700"
-            >
-              {session && profile ? 'Report an item' : 'Create your account'}
-              <ArrowRight className="h-5 w-5" />
-            </Link>
+            <div className="mt-4 flex justify-center gap-3">
+              <Link
+                to={session ? '/report-lost' : '/signup'}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-primary-700"
+              >
+                {session && profile ? 'Report lost item' : 'Create your account'}
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              {session && profile && (
+                <Link
+                  to="/report-found"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-base font-semibold text-white transition hover:bg-accent-600"
+                >
+                  Report found item
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </section>

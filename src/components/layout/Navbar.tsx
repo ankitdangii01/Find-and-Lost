@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Bell, Compass, LogOut, Plus, Search, User } from 'lucide-react'
+import { Bell, Compass, LayoutDashboard, LogOut, Plus, Search, User } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -11,8 +12,24 @@ const NAV_LINKS = [
 ]
 
 export function Navbar() {
-  const { session, profile, loading } = useAuth()
+  const { session, profile, isAdmin, loading } = useAuth()
   const navigate = useNavigate()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!session?.user) return
+    let cancelled = false
+    const loadCount = async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .eq('is_read', false)
+      if (!cancelled && !error) setUnreadCount(data?.length ?? 0)
+    }
+    void loadCount()
+    return () => { cancelled = true }
+  }, [session])
 
   if (loading) return null
 
@@ -45,6 +62,22 @@ export function Navbar() {
               {link.label}
             </NavLink>
           ))}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition',
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-slate-600 hover:bg-slate-100',
+                )
+              }
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Admin
+            </NavLink>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -56,6 +89,11 @@ export function Navbar() {
                 title="Notifications"
               >
                 <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </button>
               <Link
                 to={`/users/${profile.id}`}

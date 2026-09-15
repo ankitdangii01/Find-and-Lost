@@ -4,19 +4,20 @@ import {
   ArrowLeft,
   Calendar,
   Check,
+  Clock,
   ImageOff,
   MapPin,
   MessageCircleQuestion,
   ShieldAlert,
+  Sparkles,
   User,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
-import type { Claim, Item } from '@/types/database'
+import type { Claim, Item, MatchResult } from '@/types/database'
 import { Button, Card, Spinner, Textarea } from '@/components/ui'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { formatDate } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { cn, formatDate, formatTime, friendlyError } from '@/lib/utils'
 
 const VERIFICATION_QUESTIONS = [
   'What does the item look like in detail (brand, color, model)?',
@@ -28,10 +29,11 @@ const VERIFICATION_QUESTIONS = [
 export function ItemDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { session, profile } = useAuth()
+  const { session } = useAuth()
 
   const [item, setItem] = useState<Item | null>(null)
   const [claims, setClaims] = useState<Claim[]>([])
+  const [matches, setMatches] = useState<MatchResult[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,6 +57,12 @@ export function ItemDetailsPage() {
     }
 
     setItem(data as Item)
+
+    // Possible matches via the server-side smart matching function.
+    const matchRes = await supabase.rpc('match_item', { p_item_id: id })
+    if (!matchRes.error) {
+      setMatches((matchRes.data as MatchResult[] | null) ?? [])
+    }
 
     const myUserId = (await supabase.auth.getUser()).data.user?.id
     if (myUserId) {
@@ -86,6 +94,7 @@ export function ItemDetailsPage() {
     e.preventDefault()
     if (!session || !item) return
     setClaimSubmitting(true)
+    setError(null)
 
     const { error: claimError } = await supabase.from('claims').insert({
       item_id: item.id,
@@ -95,47 +104,30 @@ export function ItemDetailsPage() {
     })
 
     if (claimError) {
-      setError(claimError.message)
+      setError(friendlyError(claimError.message))
       setClaimSubmitting(false)
       return
     }
 
-    await supabase.from('notifications').insert({
-      user_id: item.user_id,
-      title: 'New claim on your item',
-      message: `${profile?.full_name ?? 'Someone'} claimed "${item.title}". Review it now.`,
-      type: 'claim',
-    })
-
+    // Notification is created server-side by the on_claim_insert trigger.
     setClaimMessage('')
     setShowClaimForm(false)
     await loadItem()
     setClaimSubmitting(false)
   }
 
-  async function resolveClaim(claimId: string, action: 'accepted' | 'rejected') {
+  async function cancelClaim(claimId: string) {
+    await supabase.from('claims').update({ status: 'cancelled' }).eq('id', claimId)
+    await loadItem()
+  }
+
+  async function resolveClaim(claimId: string, action: 'approved' | 'rejected') {
     if (!item) return
     await supabase.from('claims').update({ status: action }).eq('id', claimId)
 
-    const claim = claims.find((c) => c.id === claimId)
-    if (action === 'accepted') {
+    if (action === 'approved') {
       await supabase.from('items').update({ status: 'claim_pending' }).eq('id', item.id)
       await supabase.from('claims').update({ status: 'rejected' }).neq('id', claimId).eq('item_id', item.id)
-      if (claim) {
-        await supabase.from('notifications').insert({
-          user_id: claim.claimant_id,
-          title: 'Claim accepted',
-          message: `Your claim for "${item.title}" was accepted. Coordinate the return.`,
-          type: 'claim',
-        })
-      }
-    } else if (claim) {
-      await supabase.from('notifications').insert({
-        user_id: claim.claimant_id,
-        title: 'Claim rejected',
-        message: `Your claim for "${item.title}" was rejected.`,
-        type: 'claim',
-      })
     }
 
     await loadItem()
@@ -144,15 +136,6 @@ export function ItemDetailsPage() {
   async function markResolved() {
     if (!item) return
     await supabase.from('items').update({ status: 'resolved' }).eq('id', item.id)
-    const acceptedClaim = claims.find((c) => c.status === 'accepted')
-    if (acceptedClaim && acceptedClaim.claimant_id !== item.user_id) {
-      await supabase.from('notifications').insert({
-        user_id: acceptedClaim.claimant_id,
-        title: 'Item resolved',
-        message: `The item "${item.title}" was marked as resolved.`,
-        type: 'resolved',
-      })
-    }
     await loadItem()
   }
 
@@ -177,8 +160,9 @@ export function ItemDetailsPage() {
 
   const isLost = item.type === 'lost'
   const pendingClaims = claims.filter((c) => c.status === 'pending')
-  const acceptedClaim = claims.find((c) => c.status === 'accepted')
+  const approvedClaim = claims.find((c) => c.status === 'approved')
   const canAccept = isOwner && item.status === 'active' && pendingClaims.length > 0
+  const myClaim = session ? claims.find((c) => c.claimant_id === session.user.id) : null
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -235,6 +219,12 @@ export function ItemDetailsPage() {
                   <Calendar className="h-4 w-4" />
                   {formatDate(item.date_occurred)}
                 </span>
+                {item.occurred_time && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="h-4 w-4" />
+                    {formatTime(item.occurred_time)}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1.5">
                   <User className="h-4 w-4" />
                   {item.profiles?.full_name ?? 'Anonymous'}
@@ -275,11 +265,11 @@ export function ItemDetailsPage() {
                       Review pending claims
                     </Button>
                   )}
-                  {item.status === 'claim_pending' && acceptedClaim ? (
+                  {item.status === 'claim_pending' && approvedClaim ? (
                     <div className="space-y-2">
                       <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-700">
-                        Claim accepted by{' '}
-                        {acceptedClaim.claimant?.full_name ?? 'another user'}.
+                        Claim approved for{' '}
+                        {approvedClaim.profiles?.full_name ?? 'another user'}.
                       </div>
                       <Button onClick={() => void markResolved()} className="w-full">
                         <Check className="h-4 w-4" />
@@ -304,7 +294,7 @@ export function ItemDetailsPage() {
           ) : item.status === 'active' ? (
             <Card>
               <h2 className="font-semibold text-slate-900">
-                {isLost ? 'Think this is yours?' : 'Know the owner?'}
+                {!isLost ? 'Think this is yours?' : 'Have more information?'}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
                 Submit a claim to contact the person who reported it.
@@ -319,10 +309,25 @@ export function ItemDetailsPage() {
                     Log in to claim
                   </Button>
                 </div>
-              ) : claims.some((c) => c.claimant_id === session.user.id) ? (
-                <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
-                  You have already claimed this item. Wait for the owner to
-                  review it.
+              ) : myClaim ? (
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
+                    {myClaim.status === 'pending'
+                      ? 'You have already claimed this item. Wait for the owner to review it.'
+                      : myClaim.status === 'approved'
+                        ? 'Your claim was approved. Coordinate the return.'
+                        : 'Your claim is no longer active.'}
+                  </div>
+                  {myClaim.status === 'pending' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => void cancelClaim(myClaim.id)}
+                    >
+                      Cancel claim
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <>
@@ -330,7 +335,7 @@ export function ItemDetailsPage() {
                     onClick={() => setShowClaimForm((v) => !v)}
                     className="mt-4 w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
                   >
-                    {showClaimForm ? 'Cancel' : 'Claim this item'}
+                    {showClaimForm ? 'Cancel' : !isLost ? 'I think this is mine' : 'Claim this item'}
                   </button>
 
                   {showClaimForm && (
@@ -402,10 +407,10 @@ export function ItemDetailsPage() {
                             variant="success"
                             size="sm"
                             className="flex-1"
-                            onClick={() => void resolveClaim(claim.id, 'accepted')}
+                            onClick={() => void resolveClaim(claim.id, 'approved')}
                           >
                             <Check className="h-4 w-4" />
-                            Accept
+                            Approve
                           </Button>
                           <Button
                             variant="danger"
@@ -425,6 +430,42 @@ export function ItemDetailsPage() {
           </div>
         </div>
       </div>
+
+      {matches.length > 0 && (
+        <section className="mt-10">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-accent-500" />
+            <h2 className="text-lg font-semibold text-slate-900">
+              Possible matches
+            </h2>
+            <span className="text-sm text-slate-400">
+              {isLost ? 'Similar items reported as found' : 'Similar items reported as lost'}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {matches.map((m) => (
+              <Link
+                key={m.matched_item_id}
+                to={`/items/${m.matched_item_id}`}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-900">
+                    {m.title}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {m.item_type === 'found' ? 'Found' : 'Lost'} · {m.location ?? 'Unknown location'}
+                    {m.date_occurred ? ` · ${formatDate(m.date_occurred)}` : ''}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-accent-50 px-3 py-1 text-sm font-bold text-accent-700">
+                  {m.score}%
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

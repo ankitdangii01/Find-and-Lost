@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import type { Claim } from '@/types/database'
-import { Spinner } from '@/components/ui'
+import { Button, Spinner } from '@/components/ui'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { formatDate } from '@/lib/utils'
 
@@ -33,6 +33,11 @@ export function MyClaimsPage() {
     if (!session) return
     void loadMyClaims()
   }, [session, loadMyClaims])
+
+  async function cancelClaim(claimId: string) {
+    await supabase.from('claims').update({ status: 'cancelled' }).eq('id', claimId)
+    await loadMyClaims()
+  }
 
   if (loading) {
     return (
@@ -97,7 +102,20 @@ export function MyClaimsPage() {
                         </p>
                       </div>
                     </div>
-                    <StatusBadge status={claim.status} />
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={claim.status} />
+                      {claim.status === 'pending' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void cancelClaim(claim.id)}
+                          title="Cancel claim"
+                          className="text-slate-500 hover:text-rose-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm whitespace-pre-wrap text-slate-600">
                     {claim.message}

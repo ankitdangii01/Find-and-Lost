@@ -6,20 +6,22 @@ const STYLES = {
   resolved: 'bg-slate-100 text-slate-600 ring-slate-200',
   removed: 'bg-red-50 text-red-600 ring-red-200',
   pending: 'bg-amber-50 text-amber-700 ring-amber-200',
-  accepted: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  approved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
   rejected: 'bg-red-50 text-red-600 ring-red-200',
+  cancelled: 'bg-gray-50 text-gray-500 ring-gray-200',
   lost: 'bg-rose-50 text-rose-700 ring-rose-200',
   found: 'bg-sky-50 text-sky-700 ring-sky-200',
 } as const
 
 const LABELS = {
   active: 'Active',
-  claim_pending: 'Claim Pending',
+  claim_pending: 'Pending return',
   resolved: 'Resolved',
-  removed: 'Removed',
+  removed: 'Closed',
   pending: 'Pending',
-  accepted: 'Accepted',
+  approved: 'Approved',
   rejected: 'Rejected',
+  cancelled: 'Cancelled',
   lost: 'Lost',
   found: 'Found',
 } as const

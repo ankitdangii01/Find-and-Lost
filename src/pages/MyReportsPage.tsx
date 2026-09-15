@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowDownLeft, ArrowUpRight, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
@@ -10,6 +10,7 @@ import { formatDate, cn } from '@/lib/utils'
 
 export function MyReportsPage() {
   const { session } = useAuth()
+  const navigate = useNavigate()
   const [items, setItems] = useState<Item[]>([])
   const [claimCounts, setClaimCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
@@ -65,7 +66,7 @@ export function MyReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => (window.location.href = '/report-lost')}>
+          <Button variant="secondary" onClick={() => navigate('/report-lost')}>
             <ArrowDownLeft className="h-4 w-4" />
             Report lost
           </Button>

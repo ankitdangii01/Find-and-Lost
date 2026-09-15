@@ -10,6 +10,7 @@ import {
 } from '@/types/database'
 import { Button, Input, Select, Textarea, Card } from '@/components/ui'
 import { ImageUploader } from '@/components/ui/ImageUploader'
+import { friendlyError } from '@/lib/utils'
 
 export function ReportItemPage({ type }: { type: ItemType }) {
   const { session } = useAuth()
@@ -22,6 +23,7 @@ export function ReportItemPage({ type }: { type: ItemType }) {
   const [dateOccurred, setDateOccurred] = useState(
     new Date().toISOString().slice(0, 10),
   )
+  const [occurredTime, setOccurredTime] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -56,6 +58,7 @@ export function ReportItemPage({ type }: { type: ItemType }) {
         category,
         location: locLabel,
         date_occurred: dateOccurred,
+        occurred_time: occurredTime || null,
         image_url: imageUrl,
         status: 'active',
       })
@@ -63,7 +66,7 @@ export function ReportItemPage({ type }: { type: ItemType }) {
       .single()
 
     if (insertError) {
-      setError(insertError.message)
+      setError(friendlyError(insertError.message))
       setSubmitting(false)
       return
     }
@@ -170,9 +173,15 @@ export function ReportItemPage({ type }: { type: ItemType }) {
                 value={dateOccurred}
                 onChange={(e) => setDateOccurred(e.target.value)}
               />
-              <div className="flex items-end">
-                <ImageUploader existingUrl={imageUrl} onUploaded={setImageUrl} />
-              </div>
+              <Input
+                label="Approximate time"
+                type="time"
+                value={occurredTime}
+                onChange={(e) => setOccurredTime(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <ImageUploader existingUrl={imageUrl} onUploaded={setImageUrl} />
             </div>
             <Textarea
               label="Description"

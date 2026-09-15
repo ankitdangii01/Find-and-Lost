@@ -1,7 +1,7 @@
-export type Role = 'student' | 'staff'
+export type Role = 'student' | 'admin'
 export type ItemType = 'lost' | 'found'
 export type ItemStatus = 'active' | 'claim_pending' | 'resolved' | 'removed'
-export type ClaimStatus = 'pending' | 'accepted' | 'rejected'
+export type ClaimStatus = 'pending' | 'approved' | 'rejected' | 'cancelled'
 
 export interface Profile {
   id: string
@@ -23,15 +23,12 @@ export interface Item {
   category: string
   location: string
   date_occurred: string
+  occurred_time: string | null
   image_url: string | null
   status: ItemStatus
   created_at: string
   updated_at?: string
   profiles?: Pick<Profile, 'id' | 'full_name' | 'department' | 'year'> | null
-}
-
-export interface ItemWithClaimCount extends Item {
-  claim_count?: number
 }
 
 export interface Claim {
@@ -43,8 +40,16 @@ export interface Claim {
   created_at: string
   updated_at: string
   items?: Item | null
-  claimant?: Pick<Profile, 'id' | 'full_name' | 'department' | 'year'> | null
   profiles?: Pick<Profile, 'id' | 'full_name' | 'department' | 'year'> | null
+}
+
+export interface MatchResult {
+  matched_item_id: string
+  title: string
+  item_type: ItemType
+  location: string | null
+  date_occurred: string | null
+  score: number
 }
 
 export interface Notification {
@@ -54,13 +59,6 @@ export interface Notification {
   message: string
   type: string
   is_read: boolean
-  created_at: string
-}
-
-export interface Category {
-  id: string
-  name: string
-  icon: string | null
   created_at: string
 }
 

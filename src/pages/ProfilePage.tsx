@@ -122,7 +122,7 @@ export function ProfilePage() {
               </p>
             )}
             <span className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-              {profile.role === 'staff' ? 'College Staff' : 'Student'}
+              {profile.role === 'admin' ? 'Admin' : 'Student'}
             </span>
           </Card>
 
@@ -140,7 +140,8 @@ export function ProfilePage() {
                 <Input
                   label="Full name"
                   value={form.full_name}
-                  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                  disabled
+                  title="Full name cannot be changed after signup"
                 />
                 <Input
                   label="Department"

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/context/AuthContext'
 import { Layout } from '@/components/layout/Layout'
 import { RequireAuth } from '@/components/layout/RequireAuth'
+import { RequireAdmin } from '@/components/layout/RequireAdmin'
 import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
@@ -13,6 +14,8 @@ import { MyReportsPage } from '@/pages/MyReportsPage'
 import { MyClaimsPage } from '@/pages/MyClaimsPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { NotificationsPage } from '@/pages/NotificationsPage'
+import { AdminDashboardPage } from '@/pages/AdminDashboardPage'
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export default function App() {
@@ -24,6 +27,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
             <Route
               path="/dashboard"
               element={
@@ -80,6 +84,14 @@ export default function App() {
                 <RequireAuth>
                   <NotificationsPage />
                 </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <RequireAdmin>
+                  <AdminDashboardPage />
+                </RequireAdmin>
               }
             />
             <Route path="*" element={<NotFoundPage />} />
