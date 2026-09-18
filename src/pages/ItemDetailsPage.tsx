@@ -150,7 +150,7 @@ export function ItemDetailsPage() {
   if (error || !item) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="text-slate-700">{error ?? 'Item not found.'}</p>
+        <p className="text-slate-300">{error ?? 'Item not found.'}</p>
         <Button variant="secondary" className="mt-4" onClick={() => navigate('/browse')}>
           Back to browse
         </Button>
@@ -168,7 +168,7 @@ export function ItemDetailsPage() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link
         to="/browse"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 transition hover:text-white"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to browse
@@ -177,7 +177,7 @@ export function ItemDetailsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <Card className="overflow-hidden p-0">
-            <div className="aspect-[4/3] w-full bg-slate-100">
+            <div className="aspect-[4/3] w-full bg-slate-950/50">
               {item.image_url ? (
                 <img
                   src={item.image_url}
@@ -185,7 +185,7 @@ export function ItemDetailsPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-slate-300">
+                <div className="flex h-full w-full items-center justify-center text-slate-700">
                   <ImageOff className="h-16 w-16" />
                 </div>
               )}
@@ -194,39 +194,41 @@ export function ItemDetailsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={cn(
-                    'rounded-full px-3 py-1 text-xs font-semibold text-white',
-                    isLost ? 'bg-rose-600' : 'bg-sky-600',
+                    'rounded-full px-3 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/20',
+                    isLost
+                      ? 'bg-gradient-to-br from-rose-500 to-rose-700'
+                      : 'bg-gradient-to-br from-sky-500 to-blue-700',
                   )}
                 >
                   {isLost ? 'Lost' : 'Found'}
                 </span>
                 <StatusBadge status={item.status} />
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-inset ring-white/10">
                   {item.category}
                 </span>
               </div>
 
-              <h1 className="mt-4 text-2xl font-bold text-slate-900">
+              <h1 className="mt-4 text-2xl font-bold text-white">
                 {item.title}
               </h1>
 
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
                 <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-4 w-4 text-slate-500" />
                   {item.location}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" />
+                  <Calendar className="h-4 w-4 text-slate-500" />
                   {formatDate(item.date_occurred)}
                 </span>
                 {item.occurred_time && (
                   <span className="inline-flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
+                    <Clock className="h-4 w-4 text-slate-500" />
                     {formatTime(item.occurred_time)}
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1.5">
-                  <User className="h-4 w-4" />
+                  <User className="h-4 w-4 text-slate-500" />
                   {item.profiles?.full_name ?? 'Anonymous'}
                   {item.profiles?.department
                     ? ` · ${item.profiles.department}`
@@ -234,11 +236,11 @@ export function ItemDetailsPage() {
                 </span>
               </div>
 
-              <div className="mt-6 rounded-xl bg-slate-50 p-4">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+              <div className="mt-6 rounded-xl bg-white/[0.04] p-4 ring-1 ring-inset ring-white/10">
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                   Description
                 </h2>
-                <p className="mt-2 whitespace-pre-wrap text-slate-700">
+                <p className="mt-2 whitespace-pre-wrap text-slate-200">
                   {item.description}
                 </p>
               </div>
@@ -249,13 +251,13 @@ export function ItemDetailsPage() {
         <div className="space-y-6 lg:col-span-2">
           {isOwner ? (
             <Card>
-              <h2 className="font-semibold text-slate-900">Manage this report</h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <h2 className="font-semibold text-white">Manage this report</h2>
+              <p className="mt-1 text-sm text-slate-400">
                 Review claims and coordinate the return.
               </p>
 
               {item.status === 'resolved' ? (
-                <div className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-700">
+                <div className="mt-4 rounded-xl bg-emerald-400/10 p-4 text-sm text-emerald-200 ring-1 ring-inset ring-emerald-400/20">
                   This item has been marked as resolved.
                 </div>
               ) : (
@@ -267,7 +269,7 @@ export function ItemDetailsPage() {
                   )}
                   {item.status === 'claim_pending' && approvedClaim ? (
                     <div className="space-y-2">
-                      <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-700">
+                      <div className="rounded-xl bg-emerald-400/10 p-4 text-sm text-emerald-200 ring-1 ring-inset ring-emerald-400/20">
                         Claim approved for{' '}
                         {approvedClaim.profiles?.full_name ?? 'another user'}.
                       </div>
@@ -293,16 +295,16 @@ export function ItemDetailsPage() {
             </Card>
           ) : item.status === 'active' ? (
             <Card>
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-white">
                 {!isLost ? 'Think this is yours?' : 'Have more information?'}
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-400">
                 Submit a claim to contact the person who reported it.
               </p>
 
               {!session ? (
                 <div className="mt-4 space-y-2">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-400">
                     Log in to submit a claim and help reunite this item.
                   </p>
                   <Button className="w-full" onClick={() => navigate('/login')}>
@@ -311,7 +313,7 @@ export function ItemDetailsPage() {
                 </div>
               ) : myClaim ? (
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
+                  <div className="rounded-xl bg-amber-400/10 p-4 text-sm text-amber-200 ring-1 ring-inset ring-amber-400/20">
                     {myClaim.status === 'pending'
                       ? 'You have already claimed this item. Wait for the owner to review it.'
                       : myClaim.status === 'approved'
@@ -333,16 +335,16 @@ export function ItemDetailsPage() {
                 <>
                   <button
                     onClick={() => setShowClaimForm((v) => !v)}
-                    className="mt-4 w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                    className="btn-cta mt-4 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white"
                   >
                     {showClaimForm ? 'Cancel' : !isLost ? 'I think this is mine' : 'Claim this item'}
                   </button>
 
                   {showClaimForm && (
                     <form onSubmit={(e) => void submitClaim(e)} className="mt-4 space-y-3">
-                      <div className="rounded-lg bg-slate-50 p-3">
-                        <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
-                          <MessageCircleQuestion className="h-4 w-4" />
+                      <div className="rounded-lg bg-white/[0.04] p-3 ring-1 ring-inset ring-white/10">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+                          <MessageCircleQuestion className="h-4 w-4 text-sky-400" />
                           Owner will verify ownership. Answer to prove it&apos;s yours:
                         </p>
                         <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-500">
@@ -369,8 +371,8 @@ export function ItemDetailsPage() {
             </Card>
           ) : (
             <Card>
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <ShieldAlert className="h-5 w-5" />
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <ShieldAlert className="h-5 w-5 text-slate-500" />
                 This item is currently {item.status.replace('_', ' ')} and can&apos;t be claimed.
               </div>
             </Card>
@@ -379,15 +381,15 @@ export function ItemDetailsPage() {
           <div id="claims-section">
             {claims.length > 0 && (isOwner || claims.some((c) => c.claimant_id === session?.user.id)) && (
               <Card>
-                <h2 className="font-semibold text-slate-900">Claims</h2>
+                <h2 className="font-semibold text-white">Claims</h2>
                 <div className="mt-3 space-y-3">
                   {claims.map((claim) => (
                     <div
                       key={claim.id}
-                      className="rounded-xl border border-slate-200 p-4"
+                      className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/10"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-medium text-slate-800">
+                        <span className="text-sm font-medium text-slate-200">
                           {claim.profiles?.full_name ?? 'Campus user'}
                           {claim.profiles?.department
                             ? ` · ${claim.profiles.department}`
@@ -395,10 +397,10 @@ export function ItemDetailsPage() {
                         </span>
                         <StatusBadge status={claim.status} />
                       </div>
-                      <p className="mt-2 text-sm whitespace-pre-wrap text-slate-600">
+                      <p className="mt-2 text-sm whitespace-pre-wrap text-slate-400">
                         {claim.message}
                       </p>
-                      <p className="mt-2 text-xs text-slate-400">
+                      <p className="mt-2 text-xs text-slate-500">
                         {formatDate(claim.created_at)}
                       </p>
                       {isOwner && claim.status === 'pending' && item.status === 'active' && (
@@ -434,11 +436,13 @@ export function ItemDetailsPage() {
       {matches.length > 0 && (
         <section className="mt-10">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-accent-500" />
-            <h2 className="text-lg font-semibold text-slate-900">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-400/10 ring-1 ring-inset ring-cyan-400/25">
+              <Sparkles className="h-4 w-4 text-cyan-300" />
+            </span>
+            <h2 className="text-lg font-bold text-white">
               Possible matches
             </h2>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-500">
               {isLost ? 'Similar items reported as found' : 'Similar items reported as lost'}
             </span>
           </div>
@@ -447,18 +451,18 @@ export function ItemDetailsPage() {
               <Link
                 key={m.matched_item_id}
                 to={`/items/${m.matched_item_id}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+                className="glass-card flex items-center justify-between gap-3 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-slate-900">
+                  <p className="truncate font-semibold text-white">
                     {m.title}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     {m.item_type === 'found' ? 'Found' : 'Lost'} · {m.location ?? 'Unknown location'}
                     {m.date_occurred ? ` · ${formatDate(m.date_occurred)}` : ''}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-accent-50 px-3 py-1 text-sm font-bold text-accent-700">
+                <span className="shrink-0 rounded-full bg-cyan-400/10 px-3 py-1 text-sm font-bold text-cyan-300 ring-1 ring-inset ring-cyan-400/25">
                   {m.score}%
                 </span>
               </Link>

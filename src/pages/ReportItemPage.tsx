@@ -79,11 +79,13 @@ export function ReportItemPage({ type }: { type: ItemType }) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-md items-center px-4 py-10">
         <Card className="w-full text-center">
-          <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30">
+            <CheckCircle2 className="h-8 w-8" />
+          </span>
+          <h1 className="mt-4 text-2xl font-bold text-white">
             {isLost ? 'Lost item reported' : 'Found item reported'}
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-400">
             Your report is live. We matched details to show it to the right
             people on campus.
           </p>
@@ -105,9 +107,11 @@ export function ReportItemPage({ type }: { type: ItemType }) {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center gap-3">
         <span
-          className={`flex h-12 w-12 items-center justify-center rounded-2xl text-white ${
-            isLost ? 'bg-rose-600' : 'bg-sky-600'
-          }`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg ${
+            isLost
+              ? 'bg-gradient-to-br from-rose-500 to-rose-700 shadow-rose-950/40'
+              : 'bg-gradient-to-br from-sky-500 to-blue-700 shadow-sky-950/40'
+          } ring-1 ring-inset ring-white/20`}
         >
           {isLost ? (
             <ArrowDownLeft className="h-6 w-6" />
@@ -116,11 +120,11 @@ export function ReportItemPage({ type }: { type: ItemType }) {
           )}
         </span>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-white">
             Report {isLost ? 'Lost' : 'Found'} Item
           </h1>
-          <p className="text-sm text-slate-500">
-            Give enough detail to help {' '}
+          <p className="text-sm text-slate-400">
+            Give enough detail to help{' '}
             {isLost
               ? 'others recognize your item'
               : 'the owner recognize their item'}
@@ -196,7 +200,7 @@ export function ReportItemPage({ type }: { type: ItemType }) {
               onChange={(e) => setDescription(e.target.value)}
             />
             {isLost && (
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              <p className="rounded-lg bg-amber-400/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-inset ring-amber-400/20">
                 Tip: Don&apos;t include private identifying details (e.g.
                 Aadhaar number, wallet contents list). Keep those for the
                 owner/claimer verification step.
@@ -206,7 +210,7 @@ export function ReportItemPage({ type }: { type: ItemType }) {
         </Card>
 
         {error && (
-          <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <div className="rounded-lg bg-rose-400/10 px-3 py-2 text-sm text-rose-200 ring-1 ring-inset ring-rose-400/20">
             {error}
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Leaf } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Button, Input } from '@/components/ui'
 
@@ -45,21 +45,21 @@ export function LoginPage() {
       <div className="w-full">
         <Link
           to="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 transition hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
         </Link>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="glass-card p-8">
           <div className="mb-8 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-600 text-white">
-              <Leaf className="h-6 w-6" />
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-extrabold text-white shadow-[0_12px_40px_-12px_rgb(56_99_255_/_0.7)] ring-1 ring-inset ring-white/25">
+              C
             </span>
-            <h1 className="mt-4 text-2xl font-bold text-slate-900">
+            <h1 className="mt-4 text-2xl font-bold text-white">
               Welcome back
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-400">
               Log in to report and find lost items
             </p>
           </div>
@@ -85,7 +85,7 @@ export function LoginPage() {
             />
 
             {error && (
-              <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              <div className="rounded-lg bg-rose-400/10 px-3 py-2 text-sm text-rose-200 ring-1 ring-inset ring-rose-400/20">
                 {error}
               </div>
             )}
@@ -95,11 +95,11 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-slate-400">
             Don&apos;t have an account?{' '}
             <Link
               to="/signup"
-              className="font-semibold text-primary-600 hover:text-primary-700"
+              className="font-semibold text-sky-400 transition hover:text-sky-300"
             >
               Sign up
             </Link>

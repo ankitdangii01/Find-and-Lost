@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
 
 export function ImageUploader({
   onUploaded,
@@ -67,7 +68,7 @@ export function ImageUploader({
 
   return (
     <div>
-      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+      <span className="mb-1.5 block text-sm font-medium text-slate-300">
         Photo (optional)
       </span>
       <input
@@ -80,7 +81,7 @@ export function ImageUploader({
 
       <div className="flex items-start gap-3">
         {preview ? (
-          <div className="relative overflow-hidden rounded-xl border border-slate-200">
+          <div className="glass-subtle relative overflow-hidden">
             <img
               src={preview}
               alt="Item preview"
@@ -89,7 +90,8 @@ export function ImageUploader({
             <button
               type="button"
               onClick={handleRemove}
-              className="absolute right-1.5 top-1.5 rounded-full bg-slate-900/60 p-1.5 text-white transition hover:bg-slate-900/80"
+              className="absolute right-1.5 top-1.5 rounded-full bg-black/60 p-1.5 text-white ring-1 ring-inset ring-white/20 transition hover:bg-black/80"
+              aria-label="Remove photo"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -99,7 +101,12 @@ export function ImageUploader({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="flex h-32 w-44 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-600 disabled:opacity-60"
+            className={cn(
+              'flex h-32 w-44 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed',
+              'border-white/20 bg-white/[0.03] text-slate-400 transition',
+              'hover:border-sky-400/60 hover:bg-sky-400/5 hover:text-sky-300',
+              'focus-visible:outline-none disabled:opacity-60',
+            )}
           >
             {uploading ? (
               <Loader2 className="h-6 w-6 animate-spin" />
@@ -112,7 +119,7 @@ export function ImageUploader({
           </button>
         )}
       </div>
-      {error && <span className="mt-1 block text-xs text-rose-600">{error}</span>}
+      {error && <span className="mt-1 block text-xs text-rose-400">{error}</span>}
     </div>
   )
 }

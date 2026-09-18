@@ -64,9 +64,11 @@ export function NotificationsPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Notifications</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            Notifications
+          </h1>
           {unread > 0 && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-400">
               {unread} unread notification{unread === 1 ? '' : 's'}
             </p>
           )}
@@ -74,7 +76,7 @@ export function NotificationsPage() {
         {unread > 0 && (
           <button
             onClick={() => void markAllRead()}
-            className="text-sm font-medium text-primary-600 hover:text-primary-700"
+            className="text-sm font-semibold text-sky-400 transition hover:text-sky-300"
           >
             Mark all as read
           </button>
@@ -83,9 +85,9 @@ export function NotificationsPage() {
 
       <div className="mt-6">
         {notifications.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-            <BellRing className="mx-auto h-10 w-10 text-slate-300" />
-            <p className="mt-3 text-slate-500">No notifications yet.</p>
+          <div className="glass-card border-dashed p-12 text-center">
+            <BellRing className="mx-auto h-10 w-10 text-slate-600" />
+            <p className="mt-3 text-slate-400">No notifications yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -93,22 +95,22 @@ export function NotificationsPage() {
               <div
                 key={n.id}
                 className={cn(
-                  'rounded-xl border p-4 transition',
+                  'glass-card p-4 transition duration-200',
                   n.is_read
-                    ? 'border-slate-200 bg-white'
-                    : 'border-primary-200 bg-primary-50',
+                    ? 'opacity-70'
+                    : 'border-sky-400/25 bg-sky-400/[0.03] shadow-[0_12px_36px_-16px_rgb(34_211_238_/_0.35)]',
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h3 className="text-sm font-semibold text-white">
                     {n.title}
                   </h3>
                   {!n.is_read && (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-primary-500" />
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-sky-400 shadow-[0_0_10px_2px_rgb(34_211_238_/_0.6)]" />
                   )}
                 </div>
-                <p className="mt-1 text-sm text-slate-600">{n.message}</p>
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-1 text-sm text-slate-400">{n.message}</p>
+                <p className="mt-2 text-xs text-slate-500">
                   {formatRelative(n.created_at)}
                 </p>
               </div>

@@ -63,7 +63,7 @@ export function ProfilePage() {
   if (!profile) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="text-slate-700">Profile not found.</p>
+        <p className="text-slate-300">Profile not found.</p>
       </div>
     )
   }
@@ -102,26 +102,26 @@ export function ProfilePage() {
       <div className="flex flex-col gap-6 md:flex-row">
         <div className="w-full md:w-64">
           <Card className="text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-3xl font-bold text-white">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-3xl font-bold text-white shadow-[0_12px_40px_-12px_rgb(56_99_255_/_0.7)] ring-1 ring-inset ring-white/25">
               {(profile.full_name ?? profile.email ?? '?').charAt(0).toUpperCase()}
             </div>
-            <h1 className="mt-3 text-lg font-bold text-slate-900">
+            <h1 className="mt-3 text-lg font-bold text-white">
               {profile.full_name ?? 'Campus User'}
             </h1>
             {profile.department && (
-              <p className="mt-1 flex items-center justify-center gap-1 text-sm text-slate-500">
-                <Building2 className="h-4 w-4" />
+              <p className="mt-1 flex items-center justify-center gap-1 text-sm text-slate-400">
+                <Building2 className="h-4 w-4 text-slate-500" />
                 {profile.department}
                 {profile.year ? ` · Year ${profile.year}` : ''}
               </p>
             )}
             {profile.email && (
-              <p className="mt-1 flex items-center justify-center gap-1 text-sm text-slate-500">
-                <Mail className="h-4 w-4" />
+              <p className="mt-1 flex items-center justify-center gap-1 text-sm text-slate-400">
+                <Mail className="h-4 w-4 text-slate-500" />
                 {profile.email}
               </p>
             )}
-            <span className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            <span className="mt-3 inline-flex rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-inset ring-white/10">
               {profile.role === 'admin' ? 'Admin' : 'Student'}
             </span>
           </Card>
@@ -167,7 +167,7 @@ export function ProfilePage() {
           )}
 
           {saved && (
-            <p className="mt-3 text-center text-sm font-medium text-emerald-600">
+            <p className="mt-3 text-center text-sm font-medium text-emerald-400">
               Profile saved!
             </p>
           )}
@@ -175,11 +175,13 @@ export function ProfilePage() {
 
         <div className="flex-1">
           <div className="mb-4 flex items-center gap-2">
-            <UserIcon className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Reports</h2>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-400/10 text-sky-300 ring-1 ring-inset ring-sky-400/20">
+              <UserIcon className="h-4 w-4" />
+            </span>
+            <h2 className="text-lg font-bold text-white">Reports</h2>
           </div>
           {items.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+            <div className="glass-card border-dashed p-10 text-center text-slate-400">
               No reports yet.
             </div>
           ) : (

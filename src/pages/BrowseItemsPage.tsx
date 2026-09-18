@@ -17,6 +17,13 @@ const TYPE_FILTERS = [
   { value: 'found', label: 'Found' },
 ]
 
+const STATUS_FILTERS = [
+  { value: '', label: 'All active' },
+  { value: 'active', label: 'Active' },
+  { value: 'resolved', label: 'Returned / Resolved' },
+  { value: 'removed', label: 'Closed / Removed' },
+]
+
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
   { value: 'oldest', label: 'Oldest first' },
@@ -37,6 +44,7 @@ export function BrowseItemsPage() {
   const type = searchParams.get('type') ?? ''
   const category = searchParams.get('category') ?? ''
   const location = searchParams.get('location') ?? ''
+  const status = searchParams.get('status') ?? ''
   const from = searchParams.get('from') ?? ''
   const to = searchParams.get('to') ?? ''
   const sort = searchParams.get('sort') ?? 'newest'
@@ -53,7 +61,9 @@ export function BrowseItemsPage() {
       let query = supabase
         .from('items')
         .select('*, profiles(id, full_name, department, year)')
-        .eq('status', 'active')
+
+      // Default public view shows active items; a Status filter overrides it.
+      query = status ? query.eq('status', status) : query.eq('status', 'active')
 
       if (type === 'lost' || type === 'found') {
         query = query.eq('type', type)
@@ -104,12 +114,12 @@ export function BrowseItemsPage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [q, type, category, location, sort, from, to, items.length],
+    [q, type, category, location, sort, status, from, to, items.length],
   )
 
   useEffect(() => {
     void loadItems(false)
-  }, [q, type, category, location, sort, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q, type, category, location, sort, status, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams)
@@ -121,7 +131,9 @@ export function BrowseItemsPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const hasFilters = Boolean(q || type || category || location || from || to || sort !== 'newest')
+  const hasFilters = Boolean(
+    q || type || category || location || status || from || to || sort !== 'newest',
+  )
 
   const resultCountLabel = useMemo(() => {
     if (loading) return 'Searching...'
@@ -130,27 +142,31 @@ export function BrowseItemsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-900">Browse reports</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-3xl font-extrabold tracking-tight text-white">
+        Browse reports
+      </h1>
+      <p className="mt-1 text-sm text-slate-400">
         Search and filter lost &amp; found reports across campus.
       </p>
 
-      <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-3">
+      <div className="glass-card mt-6 p-5">
+        <div className="flex flex-col gap-4">
           <form
             onSubmit={(e) => {
               e.preventDefault()
               const form = new FormData(e.currentTarget)
               updateParam('q', String(form.get('q') ?? '').trim())
             }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <Search className="h-5 w-5 shrink-0 text-slate-400" />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-400/10 text-blue-300 ring-1 ring-inset ring-blue-400/20">
+              <Search className="h-4 w-4" />
+            </span>
             <input
               name="q"
               defaultValue={q}
-              placeholder="Search by name or description..."
-              className="w-full border-none bg-transparent text-sm outline-none placeholder:text-slate-400"
+              placeholder="Search lost or found items... e.g. black wallet near library"
+              className="w-full bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-500"
             />
             <Button type="submit" className="shrink-0">
               Search
@@ -159,39 +175,43 @@ export function BrowseItemsPage() {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Select
-              aria-label="Filter by type"
+              label="Type"
               options={TYPE_FILTERS}
               value={type}
               onChange={(e) => updateParam('type', e.target.value)}
             />
             <Select
-              aria-label="Filter by category"
+              label="Category"
               options={[{ value: '', label: 'All categories' }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]}
               value={category}
               onChange={(e) => updateParam('category', e.target.value)}
             />
             <Select
-              aria-label="Filter by location"
+              label="Location"
               options={[{ value: '', label: 'All locations' }, ...CAMPUS_LOCATIONS.map((l) => ({ value: l, label: l }))]}
               value={location}
               onChange={(e) => updateParam('location', e.target.value)}
             />
+            <Select
+              label="Status"
+              options={STATUS_FILTERS}
+              value={status}
+              onChange={(e) => updateParam('status', e.target.value)}
+            />
             <Input
               label="From date"
-              aria-label="From date"
               type="date"
               value={from}
               onChange={(e) => updateParam('from', e.target.value)}
             />
             <Input
               label="To date"
-              aria-label="To date"
               type="date"
               value={to}
               onChange={(e) => updateParam('to', e.target.value)}
             />
             <Select
-              aria-label="Sort by"
+              label="Sort by"
               options={SORT_OPTIONS}
               value={sort}
               onChange={(e) => updateParam('sort', e.target.value)}
@@ -206,7 +226,7 @@ export function BrowseItemsPage() {
           <button
             onClick={() => setSearchParams({}, { replace: true })}
             className={cn(
-              'inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-rose-600',
+              'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-rose-300',
             )}
           >
             <FilterX className="h-4 w-4" />
@@ -219,20 +239,17 @@ export function BrowseItemsPage() {
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-72 animate-pulse rounded-2xl bg-slate-200"
-              />
+              <div key={i} className="glass-subtle h-72 animate-pulse rounded-2xl" />
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center text-rose-700">
+          <div className="glass-card border-rose-400/25 p-8 text-center text-rose-300">
             {error}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <p className="font-medium text-slate-700">No items found</p>
-            <p className="mt-1 text-sm text-slate-500">
+          <div className="glass-card border-dashed p-10 text-center">
+            <p className="font-semibold text-white">No items found</p>
+            <p className="mt-1 text-sm text-slate-400">
               Try adjusting your search or filters.
             </p>
           </div>

@@ -6,8 +6,8 @@ import {
   CheckCircle2,
   Search,
   ShieldCheck,
+  Sparkles,
   Upload,
-  Users,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
@@ -40,117 +40,147 @@ export function LandingPage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-950 via-primary-900 to-primary-800 text-white">
-        <div className="pointer-events-none absolute inset-0 opacity-20">
-          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-accent-400 blur-3xl" />
-          <div className="absolute -right-16 top-40 h-80 w-80 rounded-full bg-sky-400 blur-3xl" />
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <div className="absolute -top-32 left-1/2 h-[30rem] w-[46rem] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[130px]" />
+          <div className="absolute right-[-6rem] top-40 h-80 w-80 rounded-full bg-cyan-400/10 blur-[110px]" />
+          <div className="absolute -left-24 top-64 h-72 w-72 rounded-full bg-indigo-500/10 blur-[110px]" />
+
+          {/* faint orbiting glass tiles */}
+          <div className="absolute left-[8%] top-[22%] hidden h-28 w-40 rotate-[-10deg] rounded-2xl border border-white/10 bg-white/[0.03] shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.1)] backdrop-blur-xl lg:block" />
+          <div className="absolute right-[7%] top-[30%] hidden h-24 w-36 rotate-[12deg] rounded-2xl border border-white/10 bg-white/[0.03] shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.1)] backdrop-blur-xl lg:block" />
+          <div className="absolute bottom-24 left-[20%] hidden h-20 w-32 rotate-[8deg] rounded-2xl border border-sky-400/20 bg-sky-400/[0.04] shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.1)] backdrop-blur-xl xl:block" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-medium ring-1 ring-white/20">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              Built for college campuses
+        <div className="relative mx-auto max-w-4xl px-4 pb-24 pt-20 text-center sm:pt-24">
+          <span className="animate-rise inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3.5 py-1.5 text-sm font-medium text-slate-200 ring-1 ring-inset ring-white/15">
+            <Sparkles className="h-4 w-4 text-sky-400" />
+            Built for college campuses
+          </span>
+
+          <h1
+            className="animate-rise mt-8 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl md:text-7xl"
+            style={{ animationDelay: '0.08s' }}
+          >
+            Lost something on campus?
+            <span className="text-gradient mt-2 block pb-1">
+              We can help you find it.
             </span>
-            <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-              Lost something on campus?
-              <span className="block text-accent-300">We can help find it.</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-100">
-              CampusFind is a centralized lost &amp; found platform for students
-              and staff. Report what you lost or found, search across the campus,
-              and reunite items safely through verified claims.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                to={dashboardTarget}
-                className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-accent-600"
-              >
-                Get started
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                to="/browse"
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3 text-base font-semibold text-white ring-1 ring-white/20 transition hover:bg-white/20"
-              >
-                Browse reports
-              </Link>
-            </div>
-            <div className="mt-12 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
-              <Link to="/report-lost" className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 transition hover:bg-white/10">
-                <ArrowDownLeft className="h-6 w-6 text-rose-300" />
-                <p className="mt-2 text-base font-bold">Report a lost item</p>
-                <p className="text-sm text-primary-200">
-                  Post what you lost with details and a photo.
-                </p>
-              </Link>
-              <Link to="/report-found" className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 transition hover:bg-white/10">
-                <ArrowUpRight className="h-6 w-6 text-sky-300" />
-                <p className="mt-2 text-base font-bold">Report a found item</p>
-                <p className="text-sm text-primary-200">
-                  Found something? Help it get back to its owner.
-                </p>
-              </Link>
-              <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-                <Users className="h-6 w-6 text-accent-300" />
-                <p className="mt-2 text-base font-bold">Verified claims</p>
-                <p className="text-sm text-primary-200">
-                  Ownership is verified through private details before items are returned.
-                </p>
-              </div>
-            </div>
+          </h1>
+
+          <p
+            className="animate-rise mx-auto mt-6 max-w-2xl text-lg text-slate-400"
+            style={{ animationDelay: '0.16s' }}
+          >
+            CampusFind is a central lost &amp; found platform for students and
+            staff. Report what you lost or found, search across campus, and
+            reunite items safely through verified claims.
+          </p>
+
+          <div
+            className="animate-rise mt-9 flex flex-wrap items-center justify-center gap-3"
+            style={{ animationDelay: '0.24s' }}
+          >
+            <Link
+              to="/report-lost"
+              className="btn-cta inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-base font-semibold text-white"
+            >
+              <ArrowDownLeft className="h-5 w-5" />
+              Report Lost Item
+            </Link>
+            <Link
+              to="/report-found"
+              className="btn-cta inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-base font-semibold text-white [background-image:linear-gradient(180deg,rgb(255_255_255_/_0.16),rgb(255_255_255_/_0.02)_42%,rgb(0_0_0_/_0.1)),linear-gradient(180deg,#22d3ee_0%,#0891b2_100%)]"
+            >
+              <ArrowUpRight className="h-5 w-5" />
+              Report Found Item
+            </Link>
+            <Link
+              to={dashboardTarget !== '/browse' ? '/browse' : '/dashboard'}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/5 px-6 py-3.5 text-base font-semibold text-slate-200 ring-1 ring-inset ring-white/15 transition hover:bg-white/10 hover:text-white"
+            >
+              <Search className="h-5 w-5" />
+              Browse Reports
+            </Link>
           </div>
         </div>
       </section>
 
-      <section id="how-it-works" className="bg-white py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
-            <p className="mt-2 text-slate-500">
-              Four simple steps to get items back where they belong.
-            </p>
-          </div>
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-4">
-            {STEPS.map((step, i) => (
-              <div
-                key={step.title}
-                className="relative rounded-2xl border border-slate-200 bg-slate-50/50 p-6"
-              >
-                <span className="absolute right-4 top-4 text-4xl font-extrabold text-slate-200">
+      {/* How it works */}
+      <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            How it works
+          </h2>
+          <p className="mt-3 text-slate-400">
+            Four simple steps to get items back where they belong.
+          </p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((step, i) => (
+            <div
+              key={step.title}
+              className="glass-card group p-6 transition duration-200 hover:-translate-y-1 hover:border-sky-400/20"
+            >
+              <div className="flex items-center justify-between">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/30 to-cyan-400/20 text-sky-300 ring-1 ring-inset ring-sky-400/25">
+                  <step.icon className="h-5 w-5" />
+                </span>
+                <span className="text-sm font-bold text-white/15">
                   0{i + 1}
                 </span>
-                <step.icon className="h-8 w-8 text-primary-600" />
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">{step.text}</p>
               </div>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <p className="text-slate-500">
+              <h3 className="mt-5 text-lg font-semibold text-white">
+                {step.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                {step.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA band */}
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <div className="glass-card relative overflow-hidden p-10 text-center sm:p-14">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_120%_at_50%_0%,rgb(56_99_255_/_0.14),transparent_70%)]"
+          />
+          <div className="relative">
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
               {session && profile
                 ? 'Ready to report an item?'
-                : 'Join your campus community today.'}
+                : 'Join your campus community today'}
+            </h2>
+            <p className="mt-3 text-slate-400">
+              {session && profile
+                ? 'Help reunite items or find what you lost.'
+                : 'Create a free account and start reporting in under a minute.'}
             </p>
-            <div className="mt-4 flex justify-center gap-3">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
-                to={session ? '/report-lost' : '/signup'}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-primary-700"
+                to={session && profile ? '/report-lost' : '/signup'}
+                className="btn-cta inline-flex items-center gap-2 rounded-xl px-6 py-3 text-base font-semibold text-white"
               >
-                {session && profile ? 'Report lost item' : 'Create your account'}
+                {session && profile ? 'Report a lost item' : 'Create your account'}
                 <ArrowRight className="h-5 w-5" />
               </Link>
-              {session && profile && (
-                <Link
-                  to="/report-found"
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-base font-semibold text-white transition hover:bg-accent-600"
-                >
-                  Report found item
-                </Link>
-              )}
+              <Link
+                to="/browse"
+                className="inline-flex items-center gap-2 rounded-xl bg-white/5 px-6 py-3 text-base font-semibold text-slate-200 ring-1 ring-inset ring-white/15 transition hover:bg-white/10 hover:text-white"
+              >
+                Browse reports
+              </Link>
             </div>
+            {!session && (
+              <p className="mt-5 inline-flex items-center gap-1.5 text-sm text-slate-500">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                Free for students and staff · Campus email sign-up
+              </p>
+            )}
           </div>
         </div>
       </section>
